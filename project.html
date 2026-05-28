@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Civic Pulse – Community Event Portal</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --clr-bg: #f4f0e8;
+      --clr-surface: #ffffff;
+      --clr-primary: #1a3a5c;
+      --clr-accent: #e07b39;
+      --clr-accent2: #2a9d8f;
+      --clr-text: #1c1c1e;
+      --clr-muted: #6b7280;
+      --clr-error: #e63946;
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.08);
+      --transition: 0.25s ease;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.65;
+      color: var(--clr-text);
+      background-color: #f4f0e8;
+      background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
+    }
+
+    #mainHeader {
+      background: linear-gradient(135deg, #1a3a5c 0%, #2c5f8a 100%);
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+
+    .logo span {
+      color: var(--clr-accent);
+    }
+
+    nav {
+      display: flex;
+      gap: 0.25rem;
+      list-style-type: none;
+    }
+
+    nav a {
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    nav a:link   { color: rgba(255,255,255,0.85); }
+    nav a:visited { color: rgba(255,255,255,0.70); }
+    nav a:hover  { background: rgba(255,255,255,0.15); color: #fff; }
+    nav a:active { background: var(--clr-accent); color: #fff; }
+
+    .help-link { background: rgba(224,123,57,0.25); color: var(--clr-accent) !important; }
+    .help-link:hover { background: var(--clr-accent) !important; color: #fff !important; }
+
+    section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    h2 {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--clr-primary);
+    }
+
+    h3, p {
+      font-family: var(--font-body);
+    }
+
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--clr-primary);
+    }
+
+    p {
+      color: var(--clr-text);
+      font-size: 0.95rem;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--clr-primary);
+      margin-bottom: 2rem;
+      display: inline-block;
+    }
+
+    .section-title::after {
+      content: '';
+      display: block;
+      width: 48px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--clr-accent), var(--clr-accent2));
+      border-radius: 2px;
+      margin-top: 8px;
+    }
+
+    #welcomeBanner {
+      background: linear-gradient(135deg, #1a3a5c 0%, #2c5f8a 100%);
+      color: #fff;
+      padding: 3rem;
+      border-radius: var(--radius);
+      margin-bottom: 3rem;
+      box-shadow: var(--shadow);
+    }
+
+    #welcomeBanner h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 400;
+      margin-bottom: 0.75rem;
+      color: #fff;
+    }
+
+    #welcomeBanner em {
+      color: var(--clr-accent);
+      font-style: italic;
+    }
+
+    #welcomeBanner p {
+      color: rgba(255,255,255,0.88);
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .highlight {
+      background: rgba(255,255,255,0.15);
+      border-left: 4px solid var(--clr-accent);
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      display: inline-block;
+      margin-top: 0.75rem;
+      color: rgba(255,255,255,0.95) !important;
+    }
+
+    .bulletin {
+      background: var(--clr-surface);
+      border-radius: var(--radius);
+      padding: 2.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .bulletin-columns {
+      column-count: 2;
+      column-gap: 30px;
+      column-rule: 1px solid gray;
+      margin-top: 1rem;
+    }
+
+    .bulletin-columns p {
+      margin-bottom: 1rem;
+      line-height: 1.75;
+      text-align: justify;
+      font-size: 0.93rem;
+      color: var(--clr-muted);
+      break-inside: avoid;
+      letter-spacing: 0.01em;
+    }
+
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .eventCard {
+      background: var(--clr-surface);
+      border: 1px solid #e5e7eb;
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      margin: 0;
+      box-shadow: var(--shadow);
+      position: relative;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+
+    .eventCard:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+      outline: 2px solid var(--clr-accent2);
+    }
+
+    .card-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: var(--clr-accent);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+    }
+
+    .eventCard h3 { font-size: 1.2rem; margin-bottom: 0.4rem; }
+    .eventCard p  { font-size: 0.88rem; color: var(--clr-muted); margin-bottom: 0.35rem; }
+    .eventCard p:last-of-type { margin-bottom: 1rem; }
+
+    .cta-button {
+      display: inline-block;
+      background-color: var(--clr-accent);
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1.4rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: var(--font-body);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background var(--transition), transform var(--transition);
+    }
+
+    .cta-button:hover  { background-color: #c95e1e; transform: translateY(-1px); }
+    .cta-button:active { transform: scale(0.97); }
+
+    .secondary-btn {
+      display: inline-block;
+      background: transparent;
+      border: 2px solid var(--clr-error);
+      color: var(--clr-error);
+      padding: 0.55rem 1.2rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: var(--font-body);
+      cursor: pointer;
+      margin-left: 0.75rem;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .secondary-btn:hover { background: var(--clr-error); color: #fff; }
+
+    .table-wrapper { overflow-x: auto; }
+
+    .gallery-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      background: var(--clr-surface);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .gallery-table caption {
+      font-size: 0.9rem;
+      color: var(--clr-muted);
+      margin-bottom: 0.75rem;
+      caption-side: top;
+      text-align: left;
+      padding: 1rem 1.5rem 0;
+      font-style: italic;
+    }
+
+    .gallery-table th,
+    .gallery-table td {
+      border: 1px solid #e5e7eb;
+      padding: 1rem;
+      background-color: #fff;
+    }
+
+    .gallery-table tr:nth-child(even) td { background-color: #f8f9fb; }
+    .gallery-table tr:hover td          { background-color: #eef4ff; }
+
+    .gallery-img {
+      width: 100%;
+      max-width: 280px;
+      height: 180px;
+      object-fit: cover;
+      border: 3px solid #e5e7eb;
+      border-radius: 8px;
+      display: block;
+      margin: 0 auto;
+      transition: border-color var(--transition), transform var(--transition);
+      cursor: zoom-in;
+    }
+
+    .gallery-img:hover { border-color: var(--clr-accent); }
+
+    .img-caption {
+      font-size: 0.8rem;
+      color: var(--clr-muted);
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--clr-primary);
+      display: block;
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .form-wrapper {
+      background: var(--clr-surface);
+      border-radius: var(--radius);
+      padding: 2.5rem;
+      max-width: 640px;
+      box-shadow: var(--shadow);
+    }
+
+    .form-group { margin-bottom: 1.5rem; }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--clr-text);
+      background: #fafafa;
+      border: 1.5px solid #d1d5db;
+      border-radius: 8px;
+      transition: border-color var(--transition);
+      display: block;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 3px solid rgba(224,123,57,0.35);
+      border-color: var(--clr-accent);
+      background: #fff;
+    }
+
+    .hidden-preserve-space { visibility: hidden; }
+    .hidden-remove-space   { display: none; }
+
+    .field-error {
+      font-size: 0.82rem;
+      color: var(--clr-error);
+      display: block;
+      margin-top: 0.3rem;
+      min-height: 1.1em;
+    }
+
+    .fee-badge {
+      display: none;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+      transition: background 0.3s;
+    }
+
+    .char-counter {
+      font-size: 0.78rem;
+      color: var(--clr-muted);
+      display: block;
+      margin-top: 0.3rem;
+      text-align: right;
+    }
+
+    .form-output {
+      display: none;
+      background: #ecfdf5;
+      border: 1px solid #6ee7b7;
+      color: #065f46;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      margin-bottom: 1.25rem;
+      line-height: 1.6;
+    }
+
+    .submit-btn { font-size: 1rem; padding: 0.75rem 2rem; }
+
+    .video-wrapper {
+      background: var(--clr-surface);
+      border-radius: var(--radius);
+      padding: 2rem;
+      text-align: center;
+      box-shadow: var(--shadow);
+      max-width: 800px;
+    }
+
+    .video-wrapper video {
+      width: 100%;
+      max-width: 720px;
+      border-radius: 10px;
+      border: 2px solid #e5e7eb;
+    }
+
+    .video-status {
+      margin-top: 0.75rem;
+      font-size: 0.9rem;
+      color: var(--clr-accent2);
+      font-weight: 600;
+    }
+
+    .geo-box {
+      background: linear-gradient(135deg, #e8f4f8 0%, #fef9ee 100%);
+      border: 1px solid #bee3f8;
+      border-radius: var(--radius);
+      padding: 2rem;
+      margin-bottom: 2.5rem;
+      text-align: center;
+    }
+
+    .geo-box p { color: var(--clr-muted); margin-bottom: 1rem; }
+
+    .geo-result {
+      margin-top: 1.25rem;
+      background: var(--clr-surface);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      font-size: 0.9rem;
+      line-height: 1.8;
+      text-align: left;
+      min-height: 2rem;
+      color: var(--clr-text);
+    }
+
+    .geo-result code {
+      background: #f1f5f9;
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+      font-size: 0.88em;
+      color: var(--clr-primary);
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .contact-card {
+      background: var(--clr-surface);
+      border: 1px solid #e5e7eb;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .contact-card h3 { color: var(--clr-accent); margin-bottom: 0.4rem; }
+
+    ul {
+      list-style-type: none;
+      list-style-position: inside;
+      padding-left: 0;
+    }
+
+    ul li {
+      padding: 0.3rem 0;
+      margin: 0.2rem 0;
+    }
+
+    footer {
+      background: var(--clr-primary);
+      color: rgba(255,255,255,0.75);
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.875rem;
+      line-height: 2;
+    }
+
+    footer a { color: var(--clr-accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 1024px) {
+      .events-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      .header-inner {
+        flex-direction: column;
+        height: auto;
+        padding: 1rem 0;
+        gap: 0.75rem;
+      }
+
+      nav { flex-wrap: wrap; justify-content: center; gap: 0.25rem; }
+      nav a { font-size: 0.8rem; padding: 0.35rem 0.6rem; }
+
+      #welcomeBanner h1  { font-size: 1.75rem; }
+      .section-title     { font-size: 1.5rem; }
+      h2                 { font-size: 1.4rem; }
+
+      .gallery-img { max-width: 100%; height: 120px; }
+
+      .events-grid      { grid-template-columns: 1fr; }
+      .contact-grid     { grid-template-columns: 1fr; }
+      .bulletin-columns { column-count: 1; }
+
+      .form-wrapper  { padding: 1.5rem; width: 100%; }
+      section        { padding: 2.5rem 1.25rem; }
+      #welcomeBanner { padding: 2rem 1.5rem; }
+      .video-wrapper video { width: 100%; }
+    }
+
+    @media (max-width: 480px) {
+      body { font-size: 14px; }
+      .logo { font-size: 1.2rem; }
+      #welcomeBanner { padding: 1.5rem 1rem; }
+      .bulletin-columns { column-count: 1; }
+
+      .cta-button,
+      .secondary-btn {
+        width: 100%;
+        text-align: center;
+        margin: 0.4rem 0;
+        display: block;
+      }
+
+      .section-title { font-size: 6vw; }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <header id="mainHeader">
+    <div class="header-inner">
+      <div class="logo">&#9670; Civic<span>Pulse</span></div>
+      <nav>
+        <a href="#home">Home</a>
+        <a href="#events">Events</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#register">Register</a>
+        <a href="#feedback">Feedback</a>
+        <a href="#video">Video</a>
+        <a href="#contact">Contact</a>
+        <a href="help.html" target="_blank" class="help-link">Help &#8599;</a>
+      </nav>
+    </div>
+  </header>
+
+  <section id="home">
+    <div id="welcomeBanner">
+      <h1>Welcome to <em>Civic Pulse</em></h1>
+      <p>Your one-stop portal for community events, registrations, and local services.</p>
+      <p>
+        &#127881; Special offer:
+        <span style="color: #e63946; font-weight: 700; font-style: italic;">
+          Register before June 30 and get free entry to any 2 events!
+        </span>
+      </p>
+      <p class="highlight">Serving the community since 2010 &mdash; over 500 events organised.</p>
+    </div>
+
+    <div class="bulletin">
+      <h2 class="section-title" style="color: #c0392b;">Community Bulletin</h2>
+      <div class="bulletin-columns">
+        <p>The annual Summer Carnival returns this July with live music, food stalls, and children's activities across the central park. All residents are invited to participate and volunteer.</p>
+        <p>The council is hosting a series of free digital literacy workshops for seniors throughout August. Sessions cover smartphone basics, online banking, and video calling.</p>
+        <p>Local gardening clubs are partnering with the council to transform vacant lots into green community spaces. Sign-up sheets are available at the town hall reception desk.</p>
+        <p>New cycle lanes are being introduced along the riverside this autumn. A public consultation meeting is scheduled for the last Friday of every month at the civic centre.</p>
+        <p>The annual photography competition is open for entries. Residents can submit up to three photos on the theme "Our Neighbourhood" via the council website before end of August.</p>
+        <p>Emergency preparedness drills will be conducted in all residential zones between September and November. Participation is voluntary but strongly encouraged by the safety committee.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="events">
+    <h2 class="section-title">Upcoming Events</h2>
+    <div class="events-grid">
+
+      <div class="eventCard">
+        <div class="card-badge">Free</div>
+        <h3>Summer Carnival</h3>
+        <p>15 July 2025 &bull; Central Park</p>
+        <p>Live music, food, and fun for all ages.</p>
+        <a href="#register" class="cta-button">Register</a>
+      </div>
+
+      <div class="eventCard">
+        <div class="card-badge">&#36;10</div>
+        <h3>Tech Talk: AI in Cities</h3>
+        <p>22 July 2025 &bull; Civic Centre Hall B</p>
+        <p>Experts discuss smart city technology.</p>
+        <a href="#register" class="cta-button">Register</a>
+      </div>
+
+      <div class="eventCard">
+        <div class="card-badge">Free</div>
+        <h3>Seniors Digital Workshop</h3>
+        <p>5 August 2025 &bull; Library, Room 3</p>
+        <p>Smartphone and internet basics for seniors.</p>
+        <a href="#register" class="cta-button">Register</a>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="gallery">
+    <h2 class="section-title">Event Gallery</h2>
+    <div class="table-wrapper">
+      <table class="gallery-table">
+        <caption>Photos from past community events</caption>
+        <tr>
+          <td>
+            <img src="https://picsum.photos/seed/carnival/280/180"
+                 alt="Annual Summer Carnival 2024"
+                 title="Summer Carnival 2024"
+                 class="gallery-img" />
+            <p class="img-caption">Summer Carnival 2024</p>
+          </td>
+          <td>
+            <img src="https://picsum.photos/seed/techtalk/280/180"
+                 alt="Tech Talk Workshop 2024"
+                 title="Tech Talk Workshop 2024"
+                 class="gallery-img"
+                 ondblclick="enlargeImg(this)" />
+            <p class="img-caption">Tech Talk 2024 <em>(double-click to enlarge)</em></p>
+          </td>
+          <td>
+            <img src="https://picsum.photos/seed/gardenday/280/180"
+                 alt="Community Garden Day 2024"
+                 title="Community Garden Day 2024"
+                 class="gallery-img" />
+            <p class="img-caption">Garden Day 2024</p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <img src="https://picsum.photos/seed/seniorsws/280/180"
+                 alt="Seniors Digital Workshop 2023"
+                 title="Seniors Workshop 2023"
+                 class="gallery-img" />
+            <p class="img-caption">Seniors Workshop 2023</p>
+          </td>
+          <td>
+            <img src="https://picsum.photos/seed/cyclerally/280/180"
+                 alt="Cycle Rally 2023"
+                 title="Cycle Rally 2023"
+                 class="gallery-img" />
+            <p class="img-caption">Cycle Rally 2023</p>
+          </td>
+          <td>
+            <img src="https://picsum.photos/seed/photoexpo/280/180"
+                 alt="Photography Exhibition 2023"
+                 title="Photography Exhibition 2023"
+                 class="gallery-img" />
+            <p class="img-caption">Photo Exhibition 2023</p>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </section>
+
+  <section id="register">
+    <h2 class="section-title">Event Registration</h2>
+    <div class="form-wrapper">
+      <form id="registrationForm" onsubmit="handleRegistration(event)">
+
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <input type="text" id="fullName" name="fullName"
+                 placeholder="e.g. Jane Smith"
+                 required autofocus />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email"
+                 placeholder="you@example.com"
+                 required />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" name="phone"
+                 placeholder="+91 98765 43210"
+                 onblur="validatePhone(this.value)" />
+          <span id="phoneError" class="field-error"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="eventDate">Preferred Date</label>
+          <input type="date" id="eventDate" name="eventDate" required />
+        </div>
+
+        <div class="form-group">
+          <label for="eventType">Event Type</label>
+          <select id="eventType" name="eventType" required
+                  onchange="showEventFee(this.value)">
+            <option value="">-- Select an event --</option>
+            <option value="carnival">Summer Carnival (Free)</option>
+            <option value="tech">Tech Talk ($10)</option>
+            <option value="workshop">Digital Workshop (Free)</option>
+            <option value="cycle">Cycle Rally ($5)</option>
+          </select>
+          <span id="eventFeeDisplay" class="fee-badge"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="message">Additional Message</label>
+          <textarea id="message" name="message" rows="4"
+                    placeholder="Any special requirements or questions..."
+                    onkeyup="countChars(this.value)"></textarea>
+          <span id="charCount" class="char-counter">0 / 300 characters</span>
+        </div>
+
+        <output id="formOutput" class="form-output"></output>
+
+        <button type="submit" class="cta-button submit-btn" onclick="showConfirmation()">
+          &#10003; Submit Registration
+        </button>
+
+        <button type="button" class="secondary-btn" onclick="clearPreferences()">
+          &#10005; Clear Saved Preferences
+        </button>
+
+      </form>
+    </div>
+  </section>
+
+  <section id="feedback">
+    <h2 class="section-title">Event Feedback</h2>
+    <div class="form-wrapper">
+      <div class="form-group">
+        <label for="feedbackText">Your Feedback</label>
+        <textarea id="feedbackText" rows="5"
+                  placeholder="Share your experience (max 300 characters)..."
+                  onkeyup="countFeedbackChars(this.value)"></textarea>
+        <span id="feedbackCount" class="char-counter">0 / 300 characters</span>
+      </div>
+      <div id="feedbackOutput" class="form-output" style="display:block; min-height:2rem;"></div>
+    </div>
+  </section>
+
+  <section id="video">
+    <h2 class="section-title">Event Promo Video</h2>
+    <div class="video-wrapper">
+      <video width="720" controls
+             oncanplay="document.getElementById('videoStatus').textContent = '✅ Video ready to play!'"
+             onwaiting="document.getElementById('videoStatus').textContent = '⏳ Buffering...'">
+        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
+        Your browser does not support the HTML5 video tag.
+      </video>
+      <p id="videoStatus" class="video-status">Loading video...</p>
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2 class="section-title">Find Nearby Events</h2>
+
+    <div class="geo-box">
+      <p>Click below to detect your location and find community events near you.</p>
+      <button class="cta-button" onclick="findNearbyEvents()">
+        &#128205; Find Nearby Events
+      </button>
+      <div id="geoResult" class="geo-result"></div>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-card">
+        <h3>&#9742; Phone</h3>
+        <p>+91 413-220-0000</p>
+      </div>
+      <div class="contact-card">
+        <h3>&#9993; Email</h3>
+        <p>events@civicpulse.gov.in</p>
+      </div>
+      <div class="contact-card">
+        <h3>&#127968; Office</h3>
+        <p>Council Building, MG Road, Puducherry 605001</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 CivicPulse &mdash; Local Community Event Portal. All rights reserved.</p>
+    <p>
+      <a href="#home">Back to Top</a> &bull;
+      <a href="help.html" target="_blank">Help</a> &bull;
+      <a href="#contact">Contact</a>
+    </p>
+  </footer>
+
+  <script>
+
+    function validatePhone(value) {
+      const err = document.getElementById('phoneError');
+      const pattern = /^[+]?[\d\s\-()\s]{7,15}$/;
+      if (value && !pattern.test(value)) {
+        err.textContent = '⚠ Please enter a valid phone number.';
+      } else {
+        err.textContent = '';
+      }
+    }
+
+    const fees = {
+      carnival : { label: 'Free', color: '#2a9d8f' },
+      tech     : { label: '$10',  color: '#e76f51' },
+      workshop : { label: 'Free', color: '#2a9d8f' },
+      cycle    : { label: '$5',   color: '#e9c46a' }
+    };
+
+    function showEventFee(value) {
+      const badge = document.getElementById('eventFeeDisplay');
+      if (fees[value]) {
+        badge.textContent      = 'Fee: ' + fees[value].label;
+        badge.style.background = fees[value].color;
+        badge.style.display    = 'inline-block';
+      } else {
+        badge.textContent   = '';
+        badge.style.display = 'none';
+      }
+      if (value) localStorage.setItem('preferredEvent', value);
+    }
+
+    function countChars(value) {
+      const el = document.getElementById('charCount');
+      el.textContent = value.length + ' / 300 characters';
+      el.style.color = value.length > 280 ? '#e63946' : '#888';
+    }
+
+    function countFeedbackChars(value) {
+      const el = document.getElementById('feedbackCount');
+      el.textContent = value.length + ' / 300 characters';
+      el.style.color = value.length > 280 ? '#e63946' : '#888';
+      const out = document.getElementById('feedbackOutput');
+      out.textContent = value.length > 0
+        ? '💬 Live preview: ' + value.slice(0, 80) + (value.length > 80 ? '…' : '')
+        : '';
+    }
+
+    function handleRegistration(e) {
+      e.preventDefault();
+      const name  = document.getElementById('fullName').value;
+      const event = document.getElementById('eventType').value;
+      const out   = document.getElementById('formOutput');
+      out.textContent = '✅ Thank you, ' + name + '! You\'ve been registered for "' + event.toUpperCase() + '". A confirmation will be emailed shortly.';
+      out.style.display = 'block';
+    }
+
+    function showConfirmation() {
+      const out = document.getElementById('formOutput');
+      out.style.opacity = '0.5';
+      setTimeout(() => { out.style.opacity = '1'; }, 200);
+    }
+
+    function enlargeImg(img) {
+      if (img.style.transform === 'scale(2)') {
+        img.style.transform = 'scale(1)';
+        img.style.zIndex    = '';
+        img.style.position  = '';
+      } else {
+        img.style.transform = 'scale(2)';
+        img.style.zIndex    = '99';
+        img.style.position  = 'relative';
+      }
+      img.style.transition = 'transform 0.3s';
+    }
+
+    window.addEventListener('load', () => {
+      const saved = localStorage.getItem('preferredEvent');
+      if (saved) {
+        const sel = document.getElementById('eventType');
+        if (sel) {
+          sel.value = saved;
+          showEventFee(saved);
+        }
+      }
+    });
+
+    function clearPreferences() {
+      localStorage.clear();
+      sessionStorage.clear();
+      document.getElementById('eventType').value = '';
+      document.getElementById('eventFeeDisplay').textContent = '';
+      alert('✅ Preferences cleared!');
+    }
+
+    window.addEventListener('beforeunload', (e) => {
+      const name = document.getElementById('fullName').value;
+      const msg  = document.getElementById('message').value;
+      if (name || msg) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved registration data. Are you sure you want to leave?';
+      }
+    });
+
+    function findNearbyEvents() {
+      const result = document.getElementById('geoResult');
+      result.textContent = '🔍 Detecting your location...';
+
+      if (!navigator.geolocation) {
+        result.textContent = '❌ Geolocation is not supported by your browser.';
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude, accuracy } = pos.coords;
+          result.innerHTML =
+            '<strong>📍 Location found!</strong><br>' +
+            'Latitude : <code>' + latitude.toFixed(5) + '</code><br>' +
+            'Longitude: <code>' + longitude.toFixed(5) + '</code><br>' +
+            'Accuracy : <code>±' + Math.round(accuracy) + ' metres</code><br><br>' +
+            '🗺 Nearest community events would appear on a map here.';
+        },
+        (err) => {
+          const messages = {
+            1: '🔒 Permission denied. Please allow location access and try again.',
+            2: '📡 Position unavailable. Check your network or GPS.',
+            3: '⏱ Request timed out. Please try again.'
+          };
+          result.textContent = messages[err.code] || '❌ An unknown geolocation error occurred.';
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+      );
+    }
+
+  </script>
+
+</body>
+</html>
