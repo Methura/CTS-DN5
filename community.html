@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Community Event Portal</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --card: #1a1a28;
+      --border: #2a2a40;
+      --accent: #f0c040;
+      --accent2: #7c5cfc;
+      --text: #e8e8f0;
+      --muted: #7a7a9a;
+      --success: #3ecf8e;
+      --error: #f87171;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0d0d1a 0%, #1a1030 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    header h1 span { color: var(--accent); }
+
+    #searchBox {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      width: 220px;
+      transition: border-color 0.2s;
+    }
+    #searchBox:focus { outline: none; border-color: var(--accent2); }
+
+    main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+    .controls select {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .btn {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 9px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.3px;
+    }
+    .btn-primary { background: var(--accent); color: #0a0a0f; }
+    .btn-primary:hover { background: #ffd060; transform: translateY(-1px); }
+    .btn-secondary { background: var(--accent2); color: #fff; }
+    .btn-secondary:hover { background: #9070ff; }
+    .btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--accent2); color: var(--accent2); }
+
+    #spinner {
+      display: none;
+      text-align: center;
+      padding: 48px;
+      color: var(--muted);
+    }
+    .spin {
+      display: inline-block;
+      width: 32px; height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #eventGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .event-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.2s, transform 0.2s;
+      animation: fadeUp 0.35s ease both;
+    }
+    .event-card:hover { border-color: var(--accent2); transform: translateY(-3px); }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      align-self: flex-start;
+    }
+    .badge-music    { background: #3b1f6e; color: #c4a0ff; }
+    .badge-workshop { background: #1a3a2a; color: #3ecf8e; }
+    .badge-sports   { background: #3a1a1a; color: #f87171; }
+    .badge-food     { background: #3a2a10; color: #f0a040; }
+    .badge-art      { background: #1a2a3a; color: #60b0ff; }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+    .card-meta {
+      font-size: 0.82rem;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .card-seats { font-size: 0.85rem; font-weight: 500; }
+    .seats-low  { color: var(--error); }
+    .seats-ok   { color: var(--success); }
+    .card-actions { display: flex; gap: 8px; margin-top: 6px; }
+    .card-actions .btn { flex: 1; font-size: 0.8rem; padding: 8px 10px; }
+
+    #modalOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    #modalOverlay.open { display: flex; }
+    #modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      width: 100%;
+      max-width: 420px;
+      animation: fadeUp 0.25s ease;
+    }
+    #modal h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+    #modal h2 span { color: var(--accent); }
+
+    .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
+    .form-group label { font-size: 0.82rem; color: var(--muted); font-weight: 500; }
+    .form-group input, .form-group select {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: var(--accent2);
+    }
+    .form-error { font-size: 0.78rem; color: var(--error); min-height: 16px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+    .modal-actions .btn { flex: 1; }
+
+    #toast {
+      position: fixed;
+      bottom: 28px; right: 28px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 14px 22px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      z-index: 300;
+      display: none;
+      animation: fadeUp 0.25s ease;
+      max-width: 320px;
+    }
+    #toast.success { border-color: var(--success); color: var(--success); }
+    #toast.error   { border-color: var(--error);   color: var(--error);   }
+
+    .stats {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+    .stat-pill {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 0.85rem;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .stat-pill strong { font-family: 'Syne', sans-serif; color: var(--accent); }
+
+    #noEvents {
+      display: none;
+      text-align: center;
+      padding: 60px 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Community<span>Portal</span></h1>
+  <input id="searchBox" type="text" placeholder="⌨ Quick search…" aria-label="Search events" />
+</header>
+
+<main>
+  <div class="stats">
+    <div class="stat-pill">Total events: <strong id="statTotal">0</strong></div>
+    <div class="stat-pill">Registrations: <strong id="statReg">0</strong></div>
+    <div class="stat-pill">Showing: <strong id="statShowing">0</strong></div>
+  </div>
+
+  <div class="controls">
+    <select id="categoryFilter" aria-label="Filter by category">
+      <option value="all">All Categories</option>
+      <option value="music">🎵 Music</option>
+      <option value="workshop">🔨 Workshop</option>
+      <option value="sports">⚽ Sports</option>
+      <option value="food">🍴 Food</option>
+      <option value="art">🎨 Art</option>
+    </select>
+    <button class="btn btn-secondary" id="addEventBtn">+ Add Demo Event</button>
+    <button class="btn btn-ghost"     id="refreshBtn">↺ Reload from API</button>
+  </div>
+
+  <div id="spinner">
+    <div class="spin"></div>
+    <p>Loading events…</p>
+  </div>
+
+  <div id="noEvents">No events match your search.</div>
+  <div id="eventGrid"></div>
+</main>
+
+<div id="modalOverlay" role="dialog" aria-modal="true">
+  <div id="modal">
+    <h2>Register for <span id="modalEventName">Event</span></h2>
+    <div id="regForm">
+      <div class="form-group">
+        <label for="inputName">Full Name</label>
+        <input id="inputName" type="text" placeholder="Jane Doe" />
+        <span class="form-error" id="errName"></span>
+      </div>
+      <div class="form-group">
+        <label for="inputEmail">Email</label>
+        <input id="inputEmail" type="email" placeholder="jane@example.com" />
+        <span class="form-error" id="errEmail"></span>
+      </div>
+      <div class="form-group">
+        <label for="inputEvent">Event</label>
+        <select id="inputEvent"></select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost"   id="cancelBtn">Cancel</button>
+        <button class="btn btn-primary" id="submitBtn">Register</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+console.log("Welcome to the Community Portal");
+window.addEventListener("load", () => {
+  alert("Community Event Portal has loaded!");
+});
+
+function Event(id, name, date, category, location, seats) {
+  this.id       = id;
+  this.name     = name;
+  this.date     = new Date(date);
+  this.category = category;
+  this.location = location;
+  this.seats    = seats;
+}
+Event.prototype.checkAvailability = function () {
+  return this.seats > 0 && this.date >= new Date();
+};
+
+const PORTAL_NAME = "Community Event Portal";
+const LAUNCH_DATE = "2025-01-01";
+let   globalSeats = 500;
+
+console.log(`${PORTAL_NAME} launched on ${LAUNCH_DATE}. Seats pool: ${globalSeats}`);
+globalSeats--;
+globalSeats++;
+
+let events = [];
+
+function addEvent(ev) {
+  events.push(ev);
+  renderEvents(events);
+}
+
+function makeCategoryTracker() {
+  const counts = {};
+  return {
+    register(category) {
+      counts[category] = (counts[category] || 0) + 1;
+    },
+    getCount(category) { return counts[category] || 0; },
+    getAll()           { return { ...counts }; }
+  };
+}
+const tracker = makeCategoryTracker();
+
+function makeCounter() {
+  let total = 0;
+  return {
+    increment() { return ++total; },
+    decrement() { return total > 0 ? --total : 0; },
+    value()     { return total; }
+  };
+}
+const regCounter = makeCounter();
+
+function filterEventsByCategory(list, category, callback) {
+  const filtered = category === "all"
+    ? list
+    : list.filter(e => e.category === category);
+  return callback ? filtered.filter(callback) : filtered;
+}
+
+function registerUser(eventId) {
+  try {
+    const ev = events.find(e => e.id === eventId);
+    if (!ev) throw new Error("Event not found.");
+    if (!ev.checkAvailability()) throw new Error("Event is full or past.");
+    ev.seats--;
+    tracker.register(ev.category);
+    regCounter.increment();
+    updateStats();
+    renderEvents(currentList());
+    showToast(`Registered for "${ev.name}"! 🎉`, "success");
+  } catch (err) {
+    showToast(`Error: ${err.message}`, "error");
+    console.error("Registration error:", err);
+  }
+}
+
+function cancelRegistration(eventId) {
+  try {
+    const ev = events.find(e => e.id === eventId);
+    if (!ev) throw new Error("Event not found.");
+    ev.seats++;
+    regCounter.decrement();
+    updateStats();
+    renderEvents(currentList());
+    showToast(`Cancelled registration for "${ev.name}".`, "success");
+  } catch (err) {
+    showToast(`Error: ${err.message}`, "error");
+  }
+}
+
+function mockFetchEvents() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { id: 1,  name: "Jazz Night Under Stars",    date: "2026-07-10", category: "music",    location: "Riverside Park",    seats: 80  },
+        { id: 2,  name: "Bread-Baking Workshop",     date: "2026-06-20", category: "workshop", location: "Community Kitchen", seats: 15  },
+        { id: 3,  name: "5K Fun Run",                date: "2026-06-25", category: "sports",   location: "City Stadium",      seats: 200 },
+        { id: 4,  name: "Street Food Festival",      date: "2026-07-04", category: "food",     location: "Town Square",       seats: 300 },
+        { id: 5,  name: "Watercolour Masterclass",   date: "2026-06-15", category: "art",      location: "Art Studio B",      seats: 20  },
+        { id: 6,  name: "Indie Band Showcase",       date: "2026-08-01", category: "music",    location: "The Loft",          seats: 3   },
+        { id: 7,  name: "Python for Beginners",      date: "2026-07-18", category: "workshop", location: "Tech Hub",          seats: 0   },
+        { id: 8,  name: "Yoga in the Park",          date: "2025-01-01", category: "sports",   location: "Garden Green",      seats: 50  },
+        { id: 9,  name: "Sushi-Making Class",        date: "2026-09-05", category: "food",     location: "Culinary Centre",   seats: 12  },
+        { id: 10, name: "Portrait Photography Walk", date: "2026-07-22", category: "art",      location: "Old Quarter",       seats: 25  }
+      ]);
+    }, 1200);
+  });
+}
+
+async function fetchEvents() {
+  showSpinner(true);
+  try {
+    const raw = await mockFetchEvents();
+    events = raw.map(({ id, name, date, category, location, seats }) =>
+      new Event(id, name, date, category, location, seats)
+    );
+    populateEventDropdown();
+    updateStats();
+    renderEvents(events);
+  } catch (err) {
+    showToast("Failed to load events.", "error");
+  } finally {
+    showSpinner(false);
+  }
+}
+
+function fetchEventsPromiseStyle() {
+  showSpinner(true);
+  mockFetchEvents()
+    .then(raw => {
+      events = raw.map(d => new Event(d.id, d.name, d.date, d.category, d.location, d.seats));
+      populateEventDropdown();
+      updateStats();
+      renderEvents(events);
+    })
+    .catch(err => showToast("Fetch failed: " + err.message, "error"))
+    .finally(() => showSpinner(false));
+}
+
+async function postRegistration(payload) {
+  try {
+    const res = await fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    setTimeout(() => {
+      showToast(`Server confirmed: ID #${data.id} created ✓`, "success");
+    }, 600);
+    return true;
+  } catch (err) {
+    showToast("Submission failed: " + err.message, "error");
+    return false;
+  }
+}
+
+function formatCard(event, prefix = "Event") {
+  return `${prefix}: ${event.name}`;
+}
+
+function currentList() {
+  const cat = document.getElementById("categoryFilter").value;
+  const q   = document.getElementById("searchBox").value.toLowerCase();
+  const clone = [...events];
+  return filterEventsByCategory(clone, cat, e =>
+    e.name.toLowerCase().includes(q) || e.location.toLowerCase().includes(q)
+  ).filter(e => e.checkAvailability());
+}
+
+function renderEvents(list) {
+  const grid = document.querySelector("#eventGrid");
+  grid.innerHTML = "";
+
+  const noMsg = document.getElementById("noEvents");
+  const valid = list.filter(e => e.checkAvailability());
+
+  document.getElementById("statShowing").textContent = valid.length;
+  noMsg.style.display = valid.length === 0 ? "block" : "none";
+
+  valid.forEach(ev => {
+    const seatsLabel  = ev.seats <= 5 ? `⚠ ${ev.seats} left` : `${ev.seats} seats`;
+    const seatsClass  = ev.seats <= 5 ? "seats-low" : "seats-ok";
+    const displayDate = ev.date.toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric" });
+    const title       = formatCard(ev, categoryPrefix(ev.category));
+
+    const card = document.createElement("div");
+    card.className = "event-card";
+    card.dataset.id = ev.id;
+    card.innerHTML = `
+      <span class="card-badge badge-${ev.category}">${ev.category}</span>
+      <div class="card-title">${title}</div>
+      <div class="card-meta">
+        <span>📅 ${displayDate}</span>
+        <span>📍 ${ev.location}</span>
+      </div>
+      <div class="card-seats ${seatsClass}">${seatsLabel}</div>
+      <div class="card-actions">
+        <button class="btn btn-primary  reg-btn"    data-id="${ev.id}">Register</button>
+        <button class="btn btn-ghost    cancel-btn" data-id="${ev.id}">Cancel</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  document.querySelectorAll(".reg-btn").forEach(btn => {
+    btn.onclick = () => openModal(parseInt(btn.dataset.id));
+  });
+  document.querySelectorAll(".cancel-btn").forEach(btn => {
+    btn.onclick = () => cancelRegistration(parseInt(btn.dataset.id));
+  });
+
+  $(".event-card").hide().fadeIn(400);
+}
+
+function categoryPrefix(cat) {
+  const map = { music:"Concert", workshop:"Workshop", sports:"Activity", food:"Festival", art:"Class" };
+  return map[cat] || "Event";
+}
+
+document.getElementById("categoryFilter").onchange = function () {
+  renderEvents(currentList());
+};
+
+document.getElementById("searchBox").addEventListener("keydown", () => {
+  setTimeout(() => renderEvents(currentList()), 0);
+});
+
+document.getElementById("addEventBtn").onclick = () => {
+  const newId = events.length + 100;
+  const demo  = new Event(newId, "Demo Event " + newId, "2026-12-31", "art", "Demo Venue", 30);
+  addEvent(demo);
+  updateStats();
+  showToast(`"Demo Event ${newId}" added!`, "success");
+};
+
+document.getElementById("refreshBtn").onclick = () => {
+  fetchEventsPromiseStyle();
+};
+
+let activeEventId = null;
+
+function openModal(eventId) {
+  activeEventId = eventId;
+  const ev = events.find(e => e.id === eventId);
+  document.getElementById("modalEventName").textContent = ev ? ev.name : "Event";
+  document.getElementById("inputEvent").value = eventId;
+  clearFormErrors();
+  document.getElementById("modalOverlay").classList.add("open");
+}
+
+function closeModal() {
+  document.getElementById("modalOverlay").classList.remove("open");
+  activeEventId = null;
+}
+
+document.getElementById("cancelBtn").onclick = closeModal;
+document.getElementById("modalOverlay").onclick = function (e) {
+  if (e.target === this) closeModal();
+};
+
+document.getElementById("submitBtn").onclick = async function (e) {
+  e.preventDefault();
+  clearFormErrors();
+
+  const name  = document.getElementById("inputName").value.trim();
+  const email = document.getElementById("inputEmail").value.trim();
+  const evId  = parseInt(document.getElementById("inputEvent").value);
+
+  let valid = true;
+
+  if (!name) {
+    document.getElementById("errName").textContent = "Name is required.";
+    valid = false;
+  }
+  if (!email || !email.includes("@")) {
+    document.getElementById("errEmail").textContent = "Enter a valid email.";
+    valid = false;
+  }
+  if (!valid) return;
+
+  const ok = await postRegistration({ name, email, eventId: evId });
+  if (ok) {
+    closeModal();
+    registerUser(evId);
+  }
+};
+
+function clearFormErrors() {
+  document.getElementById("errName").textContent  = "";
+  document.getElementById("errEmail").textContent = "";
+  document.getElementById("inputName").value      = "";
+  document.getElementById("inputEmail").value     = "";
+}
+
+function populateEventDropdown() {
+  const sel = document.getElementById("inputEvent");
+  sel.innerHTML = "";
+  events.filter(e => e.checkAvailability()).forEach(e => {
+    const opt = document.createElement("option");
+    opt.value = e.id;
+    opt.textContent = e.name;
+    sel.appendChild(opt);
+  });
+}
+
+$(document).ready(function () {
+  $('#addEventBtn').on('click', function () {});
+
+  $('#refreshBtn').on('click', function () {
+    $('#eventGrid').fadeOut(200, function () {
+      $('#eventGrid').fadeIn(400);
+    });
+  });
+});
+
+function showSpinner(show) {
+  document.getElementById("spinner").style.display   = show ? "block" : "none";
+  document.getElementById("eventGrid").style.opacity = show ? "0.3" : "1";
+}
+
+function showToast(msg, type = "success") {
+  const t = document.getElementById("toast");
+  t.textContent   = msg;
+  t.className     = type;
+  t.style.display = "block";
+  setTimeout(() => { t.style.display = "none"; }, 3500);
+}
+
+function updateStats() {
+  document.getElementById("statTotal").textContent = events.length;
+  document.getElementById("statReg").textContent   = regCounter.value();
+}
+
+fetchEvents();
+</script>
+</body>
+</html>
